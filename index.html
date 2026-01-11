@@ -2,8 +2,20 @@
 <html lang="en">
 <head>
     <script>
-        // Check for content in sessionStorage BEFORE anything renders
+        // Check for content in sessionStorage or localStorage BEFORE anything renders
         (function() {
+            // First check for hash-based persisted content
+            const hash = window.location.hash.slice(1); // Remove the #
+            if (hash) {
+                const persistedContent = localStorage.getItem('htmlPlayground_' + hash);
+                if (persistedContent) {
+                    document.open();
+                    document.write(persistedContent);
+                    document.close();
+                    return;
+                }
+            }
+
             const savedContent = sessionStorage.getItem('readerContent');
             if (savedContent) {
                 sessionStorage.removeItem('readerContent');
@@ -134,13 +146,27 @@
                 placeholder="Paste your HTML content here..."
                 style="width: 100%; height: 200px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; font-size: 14px; resize: vertical;"
             ></textarea>
-            <button
-                id="text-submit"
-                class="upload-btn"
-                style="margin-top: 10px;"
-            >
-                Render HTML
-            </button>
+            <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button
+                    id="text-submit"
+                    class="upload-btn"
+                >
+                    Render HTML
+                </button>
+                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                    <input type="checkbox" id="persist-checkbox" style="width: 16px; height: 16px; cursor: pointer;">
+                    <span>Persist</span>
+                </label>
+                <div style="display: flex; align-items: center; gap: 2px;">
+                    <span style="color: #666;">#</span>
+                    <input
+                        type="text"
+                        id="persist-id"
+                        placeholder="my-snippet"
+                        style="width: 120px; padding: 5px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
+                    >
+                </div>
+            </div>
         </div>
     </div>
 
@@ -149,6 +175,8 @@
         const fileInput = document.getElementById('file-input');
         const textInput = document.getElementById('text-input');
         const textSubmit = document.getElementById('text-submit');
+        const persistCheckbox = document.getElementById('persist-checkbox');
+        const persistId = document.getElementById('persist-id');
         const loading = document.getElementById('loading');
         const error = document.getElementById('error');
 
@@ -224,9 +252,18 @@
             // Use the first document's HTML as the full page
             const html = documents[0].html;
 
-            // Save content to sessionStorage and reload
-            sessionStorage.setItem('readerContent', html);
-            location.reload();
+            // Check if persist mode is enabled
+            if (persistCheckbox.checked && persistId.value.trim()) {
+                const id = persistId.value.trim();
+                localStorage.setItem('htmlPlayground_' + id, html);
+                // Navigate to the hash URL
+                window.location.hash = id;
+                window.location.reload();
+            } else {
+                // Save content to sessionStorage and reload
+                sessionStorage.setItem('readerContent', html);
+                location.reload();
+            }
         }
 
         function showLoading() {
