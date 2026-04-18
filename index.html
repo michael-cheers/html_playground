@@ -250,7 +250,10 @@
                                     }
                                     return out.join('\\n');
                                 }
-                            );
+                            )
+                            .replace(/^\\s*export\\s+default\\s+/gm, '')
+                            .replace(/^\\s*export\\s+(?=(function|class|const|let|var|async)\\s)/gm, '')
+                            .replace(/^\\s*export\\s*\\{[^}]*\\}\\s*;?\\s*$/gm, '');
                             const html = \`<!DOCTYPE html>
 <meta charset="UTF-8">
 <div id="root"></div>
