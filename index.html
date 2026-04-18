@@ -260,6 +260,25 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.development.min.js" integrity="sha512-0/F/LhpRyzR2Zp0y5+OIpcPFFd6kT7zia0k7vtvXZFBRyyOJFstxmbxdDc6AlGz+ZmvyXESKzvs8LEkjPbGScg==" crossorigin="anonymous" referrerpolicy="no-referrer"><\\/script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.development.min.js" integrity="sha512-aTIGujEp0xIZSXrXXFjXL3YiozmMRYjKmll3rLYTmUIGaaidsrQNn+ii04E+VwlpIUNZOF3UBoXRmNQBEdD/qQ==" crossorigin="anonymous" referrerpolicy="no-referrer"><\\/script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.28.4/babel.min.js" integrity="sha512-BCw4VuBF2HKIgxDP8K7DRHcHzazAAND+5+2E7GgX3CC1u1pteJ415mMJlQfUORjkFT64irzu1jIV93Vfvzkevw==" crossorigin="anonymous" referrerpolicy="no-referrer"><\\/script>
+<script>
+window.storage = {
+  async get(key) {
+    const v = localStorage.getItem('jsxp:' + key);
+    if (v === null) throw new Error('Key not found: ' + key);
+    return { key, value: v };
+  },
+  async set(key, value) { localStorage.setItem('jsxp:' + key, value); return { key, value }; },
+  async delete(key) { localStorage.removeItem('jsxp:' + key); return { key, deleted: true }; },
+  async list(prefix = '') {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('jsxp:' + prefix)) keys.push(k.slice(5));
+    }
+    return { keys, prefix };
+  }
+};
+<\\/script>
 <script type="text/babel" data-presets="react">
 \${rewritten}
 if (typeof App !== 'undefined') ReactDOM.createRoot(document.getElementById('root')).render(<App />);
